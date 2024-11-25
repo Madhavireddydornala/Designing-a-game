@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rock Paper Scissors</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+    <div class="container" id="container">
+        <div class="box">
+            <div class="main-box">
+                <div style="padding: 15px;line-height: 2rem;width: 60%;">
+                    <h2>ROCK</h2>
+                    <h2>PAPER</h2>
+                    <h2>SCISSORS</h2>
+                </div>
+
+                <div class="small-box">
+                    <p>COMPUTER SCORE</p>
+                    <p id="computerScore">0</p>
+                </div>
+                <div class="small-box">
+                    <p>YOUR <br>SCORE</p>
+                    <p id="userScore">0</p>
+                </div>
+            </div>
+        </div>
+        <div class="image">
+            <div class="circle rock" id="rock">
+                <img src="./images/7d8f1b87d406a7bced07190e2c368075.png" alt="Rock">
+            </div>
+            <div class="circle scissors" id="scissors">
+                <img src="./images/17911 1.png" alt="Scissors">
+            </div>
+            <div class="circle paper" id="paper">
+                <img src="./images/icons8-hand-64 1.png" alt="Paper">
+            </div>
+
+            <div class="line rock-to-scissors"></div>
+            <div class="line rock-to-paper"></div>
+            <div class="line scissors-to-paper"></div>
+        </div>
+        <div >
+            <button class="rules-btn" id="showRulesBtn">RULES</button>
+            <button class="next-btn" id="showNextBtn">Next</button>
+            <div id="rules" class="hidden">
+                <span id="closeBtn">&times;</span>
+                <h1>Game Rules</h1>
+                <ul>
+                    <li>Rock beats scissors, scissors beat paper, and paper beats rock.</li>
+                    <li>Agree ahead of time whether you'll count off "rock,paper,scissors,shoot" or just
+                        "rock,paper,scissors"</li>
+                    <li>Use rock,paper,scissors to settle minor decisions or simply play to pass the time</li>
+                    <li>If both players lay down the same hand,each player lay down another hand.</li>
+                </ul>
+            </div>
+        </div>
+        <div class="result-images">
+            <div class="choice" id="userChoiceContainer">
+                <h3>YOU PICKED</h3>
+            </div>
+            <div class="choice" id="computerChoiceContainer">
+                <h3>PC PICKED</h3>
+            </div>
+        </div>
+        <div class="play-btn">
+            <button id="playAgainBtn" class="play hidden"></button>
+        </div>
+
+    </div>
+
+
+    <div id="win" class="hidden"  >
+        <div class="container-win">
+            <img src="./images/Vector (2).png" class="win-icon" alt="">
+            <img src="./images/Group 5 (1).png" alt="">
+            <div style="margin-top: 70px;">
+                <h1 class="hurray-Text">HURRAY!!</h1>
+                <h3 class="won-game">YOU WON THE GAME</h3>
+            </div>
+            
+            <div>
+                <button class="rules-btn" id="rulesBtnWin">RULES</button>
+                <button class="play-again-btn" id="playAgainWinBtn">PLAY AGAIN</button>
+            </div>
+            <div id="rulesWin" class="hidden">
+                <span id="closeWinRulesBtn"></span>
+                
+                
+            </div>
+            
+        </div>
+    </div>
+    
+
+
+    <script>
+        
+        const userScoreSpan = document.getElementById("userScore");
+        const computerScoreSpan = document.getElementById("computerScore");
+        const choices = ["rock", "paper", "scissors"];
+        const resultMessage = document.createElement("p");
+        document.body.appendChild(resultMessage);
+        
+        let userScore = parseInt(localStorage.getItem("userScore")) || 0;
+        let computerScore = parseInt(localStorage.getItem("computerScore")) || 0;
+        userScoreSpan.textContent = userScore;
+        computerScoreSpan.textContent = computerScore;
+
+        
+        document.getElementById("rock").addEventListener("click", () => playGame("rock"));
+        document.getElementById("paper").addEventListener("click", () => playGame("paper"));
+        document.getElementById("scissors").addEventListener("click", () => playGame("scissors"));
+
+        function playGame(userChoice) {
+            const computerChoice = getComputerChoice();
+            const result = determineWinner(userChoice, computerChoice);
+            updateScores(result);
+            displayResult(userChoice, computerChoice, result);
+        }
+
+        function getComputerChoice() {
+            return choices[Math.floor(Math.random() * 3)];
+        }
+
+        function determineWinner(userChoice, computerChoice) {
+            if (userChoice === computerChoice) return "tie";
+            if (
+                (userChoice === "rock" && computerChoice === "scissors") ||
+                (userChoice === "scissors" && computerChoice === "paper") ||
+                (userChoice === "paper" && computerChoice === "rock")
+            ) {
+                return "user";
+            }
+            return "computer";
+        }
+
+        function updateScores(result) {
+            if (result === "user") {
+                userScore += 1;
+                localStorage.setItem("userScore", userScore);
+            } else if (result === "computer") {
+                computerScore += 1;
+                localStorage.setItem("computerScore", computerScore);
+            }
+            userScoreSpan.textContent = userScore;
+            computerScoreSpan.textContent = computerScore;
+        }
+
+       
+        const showRulesBtn = document.getElementById("showRulesBtn");
+        const rulesDiv = document.getElementById("rules");
+        const closeBtn = document.getElementById("closeBtn");
+
+
+        const showNextBtn = document.getElementById("showNextBtn");
+        const nextdiv = document.getElementById("win");
+
+        const container=document.getElementById('container');
+      
+        showNextBtn.addEventListener("click", () => {
+            container.classList.add('hidden');
+            nextdiv.classList.remove("hidden");
+        });
+
+
+
+        showRulesBtn.addEventListener("click", () => {
+            rulesDiv.classList.remove("hidden");
+        });
+
+        closeBtn.addEventListener("click", () => {
+            rulesDiv.classList.add("hidden");
+        });
+
+
+        function createChoiceElement(choice) {
+            const circle = document.createElement("div");
+            circle.className = "circle";
+            circle.style.borderColor = getBorderColor(choice);
+
+            const img = document.createElement("img");
+            img.src = getImageForChoice(choice);
+            img.alt = choice;
+
+            circle.appendChild(img);
+            return circle;
+        }
+
+        function getImageForChoice(choice) {
+            switch (choice) {
+                case "rock":
+                    return "./images/7d8f1b87d406a7bced07190e2c368075.png";
+                case "paper":
+                    return "./images/icons8-hand-64 1.png";
+                case "scissors":
+                    return "./images/17911 1.png";
+                default:
+                    return "";
+            }
+        }
+
+        function getBorderColor(choice) {
+            switch (choice) {
+                case "rock":
+                    return "#0078d4"; 
+                case "paper":
+                    return "#f68b1e"; 
+                case "scissors":
+                    return "#a44db0"; 
+                default:
+                    return "white";
+            }
+        }
+        const playAgainBtn = document.getElementById("playAgainBtn");
+
+        
+        playAgainBtn.addEventListener("click", () => {
+            
+            userScore = 0;
+            computerScore = 0;
+            container.classList.remove('hidden');
+
+            
+            localStorage.setItem("userScore", userScore);
+            localStorage.setItem("computerScore", computerScore);
+ 
+            userScoreSpan.textContent = userScore;
+            computerScoreSpan.textContent = computerScore;
+
+            
+            playAgainBtn.classList.add("hidden");
+            
+
+            
+            resultMessage.textContent = "";
+            document.getElementById("userChoiceContainer").innerHTML = "<h3>YOU PICKED</h3>";
+            document.getElementById("computerChoiceContainer").innerHTML = "<h3>PC PICKED</h3>";
+        });
+
+        function displayResult(userChoice, computerChoice, result) {
+            resultMessage.innerHTML = `${result === "tie"
+                ? "TIE UP!"
+                : result === "user"
+                    ? "<span >YOU WIN</span><br><span class='highlight'>AGAINST PC</span>"
+                    : "<span>YOU LOST</span><br><span class='highlight'>AGAINST PC</span>"
+                }`;
+            resultMessage.style.textAlign = "center";
+            resultMessage.style.fontSize = "1.5rem";
+            resultMessage.style.color = "#fff";
+            resultMessage.style.marginTop = "-120px";
+
+            
+            const userChoiceContainer = document.getElementById("userChoiceContainer");
+            const computerChoiceContainer = document.getElementById("computerChoiceContainer");
+
+            userChoiceContainer.innerHTML = `<h3>YOU PICKED</h3>`;
+            computerChoiceContainer.innerHTML = `<h3>PC PICKED</h3>`;
+
+            const userElement = createChoiceElement(userChoice);
+            const computerElement = createChoiceElement(computerChoice);
+
+            userChoiceContainer.appendChild(userElement);
+            computerChoiceContainer.appendChild(computerElement);
+            playAgainBtn.textContent = 'PLAY AGAIN';
+            
+            userElement.classList.remove("winner");
+            computerElement.classList.remove("winner");
+
+            if (result === "user") {
+                userElement.classList.add("winner");
+                playAgainBtn.classList.remove("hidden");
+                showNextBtn.classList.remove("hidden");
+                
+            } else if (result === "computer") {
+                computerElement.classList.add("winner");
+                playAgainBtn.classList.remove("hidden"); 
+                showNextBtn.classList.add("hidden"); 
+            
+            } else {
+
+                playAgainBtn.classList.remove("hidden");
+                playAgainBtn.textContent = 'REPLAY';
+                showNextBtn.classList.add("hidden"); 
+            
+
+            }
+        }
+        showNextBtn.classList.add("hidden");
+        showNextBtn.addEventListener("click", () => {
+    container.classList.add('hidden'); 
+    nextdiv.classList.remove("hidden"); 
+});
+
+
+const rulesBtnWin = document.getElementById("rulesBtnWin");
+const rulesWin = document.getElementById("rulesWin");
+const closeWinRulesBtn = document.getElementById("closeWinRulesBtn");
+const playAgainWinBtn = document.getElementById("playAgainWinBtn");
+
+
+rulesBtnWin.addEventListener("click", () => {
+    rulesWin.classList.remove("hidden");
+});
+
+
+closeWinRulesBtn.addEventListener("click", () => {
+    rulesWin.classList.add("hidden"); 
+});
+
+playAgainWinBtn.addEventListener("click", () => {
+    win.classList.add("hidden"); 
+    container.classList.remove("hidden"); 
+    userScore = 0; 
+    computerScore = 0;
+    localStorage.setItem("userScore", userScore);
+    localStorage.setItem("computerScore", computerScore);
+    userScoreSpan.textContent = userScore; 
+    computerScoreSpan.textContent = computerScore;
+});
+document.addEventListener("DOMContentLoaded", () => {
+    const rulesDiv = document.getElementById("rules"); 
+    const closeRulesBtn = document.getElementById("closeBtn"); 
+    const container = document.getElementById("container"); 
+    const winPage = document.getElementById("win");
+
+    const rulesBtnMain = document.getElementById("showRulesBtn");
+    const rulesBtnWin = document.getElementById("rulesBtnWin"); 
+
+
+    rulesBtnMain.addEventListener("click", () => {
+        rulesDiv.classList.remove("hidden"); 
+        container.appendChild(rulesDiv); 
+    });
+
+
+    rulesBtnWin.addEventListener("click", () => {
+        rulesDiv.classList.remove("hidden"); 
+        winPage.appendChild(rulesDiv); 
+    });
+
+
+    closeRulesBtn.addEventListener("click", () => {
+        rulesDiv.classList.add("hidden"); 
+    });
+});
+
+
+
+    </script>
+</body>
+
+</html>
